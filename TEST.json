@@ -1,0 +1,34 @@
+{
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "559395050586661",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "15551566668",
+              "phone_number_id": "491080440763418"
+            },
+            "contacts": [
+              { "profile": { "name": "emanuel soto" }, "wa_id": "50686386259" }
+            ],
+            "messages": [
+              {
+                "from": "50686386259",
+                "id": "wamid.HBgLNTA2ODYzODYyNTkVAgASGBYzRUIwRTIxNzk5RUFENkEyRDJGQUFBAA==",
+                "timestamp": "1740451368",
+                "text": {
+                  "body": "pedido:\nSuper la Macacona\n20/02/2025\n8 cloro 1/2 gal\n2 desinfectante ltr\n1 papel jumbo roll"
+                },
+                "type": "text"
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
