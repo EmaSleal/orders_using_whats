@@ -1,41 +1,71 @@
-import openai
+import requests
 import json
-from app.config import Config
 
-client = openai.OpenAI(api_key=Config.OPENAI_API_KEY)
+def verificar_intencion_y_formato(mensaje):
+    """
+    Usa un modelo de IA local para analizar la intención del mensaje (Pedido, Reporte, Agregar Artículo)
+    y devuelve la versión corregida si es necesario.
+    - Si la intención y el formato están correctos, devuelve "true".
+    - Si la intención es correcta, pero el formato es incorrecto, devuelve el mensaje corregido.
+    - Si la intención es incorrecta, devuelve "false".
+    """
 
-def verificar_pedido_con_chatgpt(productos_pedido, productos_disponibles):
-    """
-    Usa ChatGPT para validar productos en un pedido y sugerir correcciones si es necesario.
-    Devuelve una respuesta JSON con "productos_validos" y "productos_sugeridos".
-    """
+    # 📌 Definir el prompt para la IA
     prompt = f"""
-    Un cliente ha hecho un pedido con los siguientes productos:
-    {productos_pedido}
+    Un usuario ha enviado el siguiente mensaje por WhatsApp:
+    "{mensaje}"
 
-    Los productos disponibles en el inventario son:
-    {productos_disponibles}
+    Determina cuál es la intención del mensaje:
+    - Si es un **pedido**, estructura el mensaje en este formato:
+      pedido:
+      CLIENTE
+      FECHA DE ENTREGA
+      CANTIDAD ARTICULO
+      CANTIDAD ARTICULO
 
-    Revisa si hay productos en el pedido que no coinciden con los disponibles.
-    - Si un producto coincide exactamente, agrégalo a "productos_validos".
-    - Si un producto tiene un error de escritura, sugiere la versión correcta en "productos_sugeridos".
-    - Si un producto no existe, ignóralo.
+    - Si es un **reporte**, estructura el mensaje en este formato:
+      reporte:
+      hoy
+      reporte:
+      20/02 a hoy
+      reporte:
+      20/02/2025 a hoy
+      reporte:
+      20/02/25 a hoy
+      reporte:
+      3 (desde hace 3 días a hoy)
 
-    Responde en formato JSON como este:
-    {{
-        "productos_validos": ["8 cloro 1/2 gal", "2 desinfectante ltr"],
-        "productos_sugeridos": {{"papael jumbro rol": "papel jumbo roll"}}
-    }}
+    - Si es para **agregar artículos**, devuelve simplemente:
+      "Agregar articulo"
+
+    Responde SOLO con:
+    - "true" si el formato y la intención son correctos.
+    - El mensaje corregido si la intención es correcta pero el formato está mal.
+    - "false" si la intención y el formato no tienen sentido.
     """
 
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "Eres un asistente experto en validación de pedidos."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=500,
-        temperature=0.5
-    )
+    # 📌 Hacer el request a la API local
+    url = "http://localhost:11434/api/generate"
+    payload = {
+        "model": "deepseek-r1:7b",
+        "prompt": prompt,
+        "stream": False,
+        "format": "json"  # Para asegurar que la respuesta sea JSON
+    }
 
-    return response.choices[0].message.content
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()  # Lanza error si el request falla
+        data = response.json()
+
+        # 📌 Extraer la respuesta generada
+        if "response" in data:
+            resultado = data["response"].strip()
+            if resultado.lower() == "true" or resultado.lower() == "false":
+                return resultado
+            return resultado  # Devuelve el mensaje corregido si el formato estaba mal
+        
+        return "false"  # Si no se entiende el mensaje, devuelve falso
+    
+    except requests.RequestException as e:
+        return {"error": f"Fallo en la API local: {str(e)}"}
