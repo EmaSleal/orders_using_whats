@@ -4,6 +4,7 @@ import os
 import threading
 from app.services import procesar_pedido, procesar_reporte, insertar_articulos_desde_excel
 from app.database import ejecutar_sp
+import json
 
 webhook_bp = Blueprint('webhook', __name__)
 
@@ -59,10 +60,14 @@ def procesar_mensaje(data):
             message_body = messages[0]["document"].get("caption", "").strip()
         else:
             return  # 🚀 No procesamos si no es texto ni documento
+        
+        # 📌 Convertir `data` a un string JSON válido
+        data_json = json.dumps(data)  # Convierte `data` a un string JSON antes de enviarlo a MySQL
 
         # 📌 Llamar al procedimiento almacenado para verificar si el mensaje ya se procesó
         existe = 0
-        resultados = ejecutar_sp("RegistrarWebhook", (message_id, phone_number, message_body, existe))
+        
+        resultados = ejecutar_sp("RegistrarWebhook", (message_id, phone_number, message_body, data_json, existe))
 
         print(f"ℹ️ Procesando mensaje: {resultados}")
 

@@ -3,8 +3,8 @@ from app.database import ejecutar_sp
 from app.whatsapp import enviar_mensaje_whatsapp
 from datetime import datetime, timedelta
 from rapidfuzz import process
-from app.chatgpt import verificar_pedido_con_chatgpt
-import json
+
+
 import pandas as pd
 
 def insertar_articulos_desde_excel(file_path):
@@ -290,36 +290,6 @@ def obtener_factura_completa(id_factura):
             return mensaje
     return None
 
-# def buscar_o_insertar_producto(nombre_producto):
-#     """
-#     Busca un producto por nombre utilizando similitud de texto con RapidFuzz.
-#     Si no existe un producto con suficiente coincidencia, lo inserta y devuelve un objeto con el ID, nombre y precio.
-#     """
-#     producto_existente = buscar_producto_por_nombre(nombre_producto)
-
-#     if producto_existente:
-#         # Producto encontrado con coincidencia alta
-#         id_producto = producto_existente["idProducto"]
-#         nombre_producto = producto_existente["nombreProducto"]
-#         precio_producto = producto_existente.get("precioProducto", 0)
-#         print(f"Producto encontrado: {nombre_producto} (ID: {id_producto}, Precio: {precio_producto})")
-#     else:
-#         # Producto no encontrado, insertar
-#         print(f"Producto no encontrado, insertando nuevo: {nombre_producto}")
-#         resultados = ejecutar_sp("InsertarProducto", (nombre_producto, nombre_producto, 0, 0))
-#         if resultados:
-#             id_producto = resultados[0][0][0]  # ID del producto insertado
-#             precio_producto = 0  # Precio por defecto si no se proporciona
-#             print(f"Producto insertado con ID: {id_producto}")
-#         else:
-#             return None  # Si hay un error al insertar, retornamos None
-
-#     # Retornar un objeto con los datos del producto
-#     return {
-#         "id": id_producto,
-#         "nombre": nombre_producto,
-#         "precio": precio_producto
-#     }
 
 
 from rapidfuzz import process
